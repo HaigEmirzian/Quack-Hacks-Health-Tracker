@@ -5,28 +5,48 @@ function WeightDataPage() {
   const [file, setFile] = useState(null);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleFileSelect = (selectedFile) => {
     setFile(selectedFile);
   };
 
   const handleUpload = async () => {
-    if (!file) return;
+    if (!file) {
+      setError('Please select a file first');
+      return;
+    }
+
     setLoading(true);
+    setError(null);
 
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append('file', file);
 
     try {
-      const res = await fetch("http://localhost:5000/weight", {
-        method: "POST",
+      console.log('Sending request to server...');
+      const response = await fetch('http://localhost:5000/weight', {
+        method: 'POST',
         body: formData,
       });
-      const data = await res.json();
-      setResult(data);
-    } catch (err) {
-      console.error("Upload failed", err);
-      setResult({ error: "Failed to fetch insights." });
+
+      console.log('Response received:', response.status);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Data received:', data);
+
+      if (data.error) {
+        setError(data.error);
+      } else {
+        setResult(data);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      setError('Failed to fetch insights. Please make sure the server is running.');
     } finally {
       setLoading(false);
     }
@@ -43,18 +63,24 @@ function WeightDataPage() {
         </p>
 
         <FileUploadBox
-          accept=".csv"
+          accept=".csv,.xlsx"
           onFileSelect={handleFileSelect}
           labelText="Drag & drop CSV file here or click to choose"
         />
 
         <button
           onClick={handleUpload}
-          className="mt-4 w-full bg-black text-white px-6 py-3 rounded-full hover:bg-gray-800 transition duration-200"
+          className="mt-4 w-full bg-white text-black px-6 py-3 rounded-full hover:bg-gray-100 transition duration-200"
           disabled={loading}
         >
           {loading ? "Analyzing..." : "Analyze Weight Data"}
         </button>
+
+        {error && (
+          <div className="mt-6 text-left text-red-500">
+            {error}
+          </div>
+        )}
 
         {result && (
           <div className="mt-6 text-left">
