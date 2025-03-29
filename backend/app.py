@@ -8,7 +8,7 @@ from predict import handle_prediction
 app = Flask(__name__, static_folder="../frontend/dist", static_url_path="")
 CORS(app)
 
-allowed_files = {"xlsx", "csv"}
+allowed_files = {"xlsx", "csv", "xml"}
 
 
 def allowed_file(filename):
