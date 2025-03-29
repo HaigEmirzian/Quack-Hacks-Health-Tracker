@@ -5,6 +5,9 @@ import pandas as pd
 import io
 from predict import handle_prediction
 
+from filterData import filterData
+from aggregate_daily import aggregateDaily
+
 app = Flask(__name__, static_folder="../frontend/dist", static_url_path="")
 CORS(app)
 
@@ -63,6 +66,11 @@ def appleDataUpload():
     # Save the file to the upload folder with the fixed filename
     try:
         file.save(file_path)
+        
+        #Erroring function
+        filterData()
+        aggregateDaily()
+        
         return jsonify({"message": f"File uploaded successfully as '{fixed_filename}' to '{file_path}'."}), 200
     except Exception as e:
         return jsonify({"error": f"Error saving file: {str(e)}"}), 500
