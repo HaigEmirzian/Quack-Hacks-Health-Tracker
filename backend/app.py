@@ -9,6 +9,9 @@ import torch.nn as nn
 from torch.optim import Adam
 import RNN_model  # Make sure this import works
 
+from filterData import filterData
+from aggregate_daily import aggregateDaily
+
 app = Flask(__name__, static_folder="../frontend/dist", static_url_path="")
 CORS(app, resources={r"/*": {"origins": "*"}})
 
@@ -86,12 +89,11 @@ def analyze_weight():
         return jsonify({"error": f"Server error: {str(e)}"}), 500
 
 
-UPLOAD_FOLDER = "/appleHealth/"
+UPLOAD_FOLDER = "appleHealth/"
 
 @app.route("/appleDataUpload", methods=["POST"])
 def appleDataUpload():
     file = request.files.get("file")
-
     # Validate file
     if file is None or file.filename == "":
         return jsonify({"error": "No file uploaded"}), 400
@@ -105,6 +107,11 @@ def appleDataUpload():
     # Save the file to the upload folder with the fixed filename
     try:
         file.save(file_path)
+        
+        #Erroring function
+        #filterData()
+        #aggregateDaily()
+        
         return jsonify({"message": f"File uploaded successfully as '{fixed_filename}' to '{file_path}'."}), 200
     except Exception as e:
         return jsonify({"error": f"Error saving file: {str(e)}"}), 500
