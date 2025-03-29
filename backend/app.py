@@ -66,13 +66,16 @@ def analyze_weight():
             new_data = weight_tensor[-30:]
             predicted_weight = RNN_model.predict_weight(model, new_data, data_min, data_max)
 
-            return jsonify({
-                "prediction": round(float(predicted_weight)),
-                "message": "Success",
-                "dataPoints": len(df),
-                "startDate": df.index[0].strftime('%Y-%m-%d') if isinstance(df.index, pd.DatetimeIndex) else "N/A",
-                "endDate": df.index[-1].strftime('%Y-%m-%d') if isinstance(df.index, pd.DatetimeIndex) else "N/A"
-            })
+            # return jsonify({
+            #     "prediction": round(float(predicted_weight)),
+            #     "message": "Success",
+            #     "dataPoints": len(df),
+            #     "startDate": df.index[0].strftime('%Y-%m-%d') if isinstance(df.index, pd.DatetimeIndex) else "N/A",
+            #     "endDate": df.index[-1].strftime('%Y-%m-%d') if isinstance(df.index, pd.DatetimeIndex) else "N/A"
+            # })
+        
+            return f"Your predicted weight is {round(float(predicted_weight))} lbs."
+
             
         except Exception as e:
             print(f"Error processing file: {str(e)}")

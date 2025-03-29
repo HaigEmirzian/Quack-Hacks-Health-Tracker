@@ -13,44 +13,41 @@ function WeightDataPage() {
 
   const handleUpload = async () => {
     if (!file) {
-      setError('Please select a file first');
+      setError("Please select a file first");
       return;
     }
-
+  
     setLoading(true);
     setError(null);
-
+  
     const formData = new FormData();
-    formData.append('file', file);
-
+    formData.append("file", file);
+  
     try {
-      console.log('Sending request to server...');
-      const response = await fetch('http://localhost:5000/weight', {
-        method: 'POST',
+      console.log("Sending request to server...");
+      const response = await fetch("http://localhost:5000/weight", {
+        method: "POST",
         body: formData,
       });
-
-      console.log('Response received:', response.status);
-
+  
+      console.log("Response received:", response.status);
+  
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
-      const data = await response.json();
-      console.log('Data received:', data);
-
-      if (data.error) {
-        setError(data.error);
-      } else {
-        setResult(data);
-      }
+  
+      const data = await response.text(); // Expect plain text response
+      console.log("Data received:", data);
+  
+      setResult(data); // Store text response directly
     } catch (error) {
-      console.error('Error:', error);
-      setError('Failed to fetch insights. Please make sure the server is running.');
+      console.error("Error:", error);
+      setError("Failed to fetch insights. Please make sure the server is running.");
     } finally {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="min-h-screen w-screen bg-gradient-to-b from-white to-gray-100 flex items-center justify-center p-4">
@@ -82,14 +79,16 @@ function WeightDataPage() {
           </div>
         )}
 
-        {result && (
-          <div className="mt-6 text-left">
-            <h2 className="text-xl font-semibold mb-2">Weight Analysis:</h2>
-            <pre className="bg-gray-100 p-4 rounded-lg text-sm text-gray-800 overflow-x-auto">
-              {JSON.stringify(result, null, 2)}
-            </pre>
-          </div>
-        )}
+    {result && (
+      <div className="mt-6 text-left">
+        <h2 className="text-xl font-semibold mb-2">Weight Analysis:</h2>
+        <pre className="bg-gray-100 p-4 rounded-lg text-sm text-gray-800 overflow-x-auto">
+          {result}
+        </pre>
+      </div>
+    )}
+
+
       </div>
     </div>
   );
