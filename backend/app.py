@@ -47,12 +47,11 @@ def prediction():
         return jsonify({"error": f"Error during prediction: {str(e)}"})
 
 
-UPLOAD_FOLDER = "/appleHealth/"
+UPLOAD_FOLDER = "appleHealth/"
 
 @app.route("/appleDataUpload", methods=["POST"])
 def appleDataUpload():
     file = request.files.get("file")
-
     # Validate file
     if file is None or file.filename == "":
         return jsonify({"error": "No file uploaded"}), 400
@@ -68,8 +67,8 @@ def appleDataUpload():
         file.save(file_path)
         
         #Erroring function
-        filterData()
-        aggregateDaily()
+        #filterData()
+        #aggregateDaily()
         
         return jsonify({"message": f"File uploaded successfully as '{fixed_filename}' to '{file_path}'."}), 200
     except Exception as e:
