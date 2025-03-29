@@ -16,7 +16,7 @@ def allowed_file(filename):
 
 @app.route('/', methods=['GET'])
 def home():
-    return render_template('../frontend/index.html')
+    return render_template('index.html')
 
 @app.route('/prediction', methods=['POST'])
 def prediction():
@@ -65,4 +65,4 @@ def prediction():
             return jsonify({"error": f'Error during prediction: {str(e)}'})
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True)
