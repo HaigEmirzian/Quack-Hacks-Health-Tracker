@@ -24,3 +24,5 @@ dist-ssr
 *.sw?
 
 .env
+appleHealth/export.xml
+appleHealth/export
