@@ -57,7 +57,11 @@ def train_model(model, train_loader, loss_fn, optimizer, num_epochs):
 
             epoch_loss += loss.item()
 
+<<<<<<< HEAD
         if epoch % 100 == 0:
+=======
+        if epoch % 10 == 0:
+>>>>>>> 8f2a03704a78bce46c181e882e9349174b184952
             print(f"Epoch {epoch} Loss: {epoch_loss / len(train_loader)}")
 
 
@@ -144,7 +148,11 @@ if __name__ == "__main__":
     loss_fn = nn.MSELoss()
     optimizer = Adam(model.parameters(), lr=0.001)
 
+<<<<<<< HEAD
     train_model(model, train_loader, loss_fn, optimizer, num_epochs=1000)
+=======
+    train_model(model, train_loader, loss_fn, optimizer, num_epochs=100)
+>>>>>>> 8f2a03704a78bce46c181e882e9349174b184952
 
     evaluate_model(model, test_loader, loss_fn, data_min, data_max)
 
