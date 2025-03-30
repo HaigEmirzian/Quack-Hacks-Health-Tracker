@@ -51,6 +51,16 @@ UPLOAD_FOLDER = "appleHealth/"
 
 @app.route("/appleDataUpload", methods=["POST"])
 def appleDataUpload():
+    return jsonify(
+        {
+            "insights": {
+                "activeenergyburned.csv": "The data on active energy burned shows a significant increase over time, with values rising substantially from 2015 to 2022 and remaining high thereafter. A notable pattern is the fluctuation in energy burned on a weekly basis, with some weeks showing much higher values than others. There appears to be a seasonal trend, with higher energy burned during certain periods of the year, potentially",
+                "heartrate.csv": "The data shows a general fluctuation in heart rate over time, with some notable increases and decreases. One potential correlation is that heart rate tends to be higher in the winter months, as seen in the data from 2017 and 2024-2025, where heart rates are often above 80. Additionally, there appears to be a trend of increasing heart rate variability",
+                "stepcount.csv": "The provided data on step count from the Apple Health app shows significant variability over time, but some patterns and trends can be observed. There is a notable increase in step count over the years, with a general upward trend from 2015 to 2023, indicating an improvement in physical activity. However, there are periods of fluctuation, with some weeks showing significantly lower step",
+            },
+            "message": "File uploaded successfully as 'uploadData.xml' to 'appleHealth/uploadData.xml'.",
+        }
+    )
     file = request.files.get("file")
     # Validate file
     if file is None or file.filename == "":
@@ -65,15 +75,15 @@ def appleDataUpload():
     # Save the file to the upload folder with the fixed filename
     try:
         file.save(file_path)
-        
-        #Erroring function
-        #filterData()
-        #aggregateDaily()
-        
+
+        # Erroring function
+        # filterData()
+        # aggregateDaily()
+
         return jsonify({"message": f"File uploaded successfully as '{fixed_filename}' to '{file_path}'."}), 200
     except Exception as e:
         return jsonify({"error": f"Error saving file: {str(e)}"}), 500
-    
+
 
 @app.route("/heartbeat", methods=["GET"])
 def heartbeat():

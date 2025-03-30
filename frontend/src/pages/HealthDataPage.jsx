@@ -13,16 +13,16 @@ function HealthDataPage() {
   const handleUpload = async () => {
     if (!file) return;
     setLoading(true);
-  
+
     const formData = new FormData();
     formData.append("file", file);
-  
+
     try {
       const res = await fetch("http://localhost:5000/appleDataUpload", {
         method: "POST",
         body: formData,
       });
-  
+
       if (!res.ok) {
         const errorData = await res.json();
         setResult({ error: errorData.error || "An unknown error occurred." });
@@ -36,7 +36,14 @@ function HealthDataPage() {
     } finally {
       setLoading(false);
     }
-  };  
+  };
+
+  // Map file names to image URLs (adjust the paths as needed)
+  const imageMapping = {
+    "activeenergyburned.csv": "/assets/activeenergyburned.png",
+    "heartrate.csv": "/assets/heartrate.png",
+    "stepcount.csv": "/assets/stepcount.png",
+  };
 
   return (
     <div className="min-h-screen w-screen bg-gradient-to-b from-white to-gray-100 flex items-center justify-center p-4">
@@ -64,10 +71,31 @@ function HealthDataPage() {
 
         {result && (
           <div className="mt-6 text-left">
-            <h2 className="text-xl font-semibold mb-2">Results:</h2>
-            <pre className="bg-gray-100 p-4 rounded-lg text-sm text-gray-800 overflow-x-auto">
-              {JSON.stringify(result, null, 2)}
-            </pre>
+            {result.error ? (
+              <div className="text-red-500 text-lg">{result.error}</div>
+            ) : (
+              <>
+                {result.message && (
+                  <div className="mb-4 text-green-600 font-medium">{result.message}</div>
+                )}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {result.insights &&
+                    Object.entries(result.insights).map(([key, text]) => (
+                      <div key={key} className="bg-gray-100 p-4 rounded-lg shadow">
+                        <img
+                          src={imageMapping[key] || "/assets/default.png"}
+                          alt={key}
+                          className="w-full h-32 object-contain mb-2"
+                        />
+                        <h3 className="font-semibold text-gray-800 mb-1">
+                          {key.replace(".csv", "")}
+                        </h3>
+                        <p className="text-gray-600 text-sm">{text}</p>
+                      </div>
+                    ))}
+                </div>
+              </>
+            )}
           </div>
         )}
       </div>
