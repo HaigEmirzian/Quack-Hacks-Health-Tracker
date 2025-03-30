@@ -78,19 +78,21 @@ function HealthDataPage() {
                 {result.message && (
                   <div className="mb-4 text-green-600 font-medium">{result.message}</div>
                 )}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex flex-col space-y-4">
                   {result.insights &&
                     Object.entries(result.insights).map(([key, text]) => (
-                      <div key={key} className="bg-gray-100 p-4 rounded-lg shadow">
+                      <div key={key} className="flex items-center bg-gray-100 p-4 rounded-lg shadow">
                         <img
                           src={imageMapping[key] || "/assets/default.png"}
                           alt={key}
-                          className="w-full h-32 object-contain mb-2"
+                          className="w-24 h-24 object-contain mr-4"
                         />
-                        <h3 className="font-semibold text-gray-800 mb-1">
-                          {key.replace(".csv", "")}
-                        </h3>
-                        <p className="text-gray-600 text-sm">{text}</p>
+                        <div>
+                          <h3 className="font-semibold text-gray-800 mb-1">
+                            {key.replace(".csv", "")}
+                          </h3>
+                          <p className="text-gray-600 text-sm">{text}</p>
+                        </div>
                       </div>
                     ))}
                 </div>
