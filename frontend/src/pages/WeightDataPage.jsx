@@ -80,13 +80,13 @@ function WeightDataPage() {
           labelText="Drag & drop CSV file here or click to choose"
         />
 
-        <button
-          onClick={handleUpload}
-          className="mt-4 w-full bg-white text-black px-6 py-3 rounded-full hover:bg-gray-100 transition duration-200 disabled:opacity-50"
-          disabled={loading}
-        >
-          {loading ? "Processing..." : "Analyze Weight Data"}
-        </button>
+<button
+  onClick={handleUpload}
+  className="mt-4 w-full bg-white text-white px-6 py-3 rounded-full hover:bg-gray-100 transition duration-200 disabled:opacity-50"
+  disabled={loading}
+>
+  {loading ? "Processing..." : "Analyze Weight Data"}
+</button>
 
         {error && (
           <div className="mt-6 text-left text-red-500">
