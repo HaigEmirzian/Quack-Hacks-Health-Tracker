@@ -4,14 +4,75 @@ import os
 import pandas as pd
 import io
 from predict import handle_prediction
+import requests
+import time
 
 from filterData import filterData
-from aggregate_daily import aggregateDaily
+from aggregate_weekly import aggregateWeekly
 
 app = Flask(__name__, static_folder="../frontend/dist", static_url_path="")
 CORS(app)
 
 allowed_files = {"xlsx", "csv"}
+
+globalSavedInsights = {}
+
+def get_databricks_insight(category_name, category_data):
+    """
+    Send CSV data to the Databricks API and return the generated insight.
+    
+    Args:
+        category_name (str): The category name (e.g., 'stepcount').
+        category_data (str): The content of the CSV file as a string.
+    
+    Returns:
+        str: The insight from the API or an error message if the request fails.
+    """
+    url = "https://dbc-81784a62-a9c5.cloud.databricks.com/serving-endpoints/QuackHacks_Health_Insights/invocations"
+    
+    # Retrieve token from environment variable
+    token = os.getenv("DATABRICKS_TOKEN")
+    if not token:
+        raise ValueError("DATABRICKS_TOKEN environment variable is not set")
+    
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {token}"
+    }
+    
+    # Format the prompt with category name and data
+    prompt = f"""I will provide you with data from a specific category in the Apple Health app. Your task is to analyze the data and detect any significant patterns, trends, or anomalies. Please give a very short summary and suggest potential correlations or insights that are useful. Only include normal sentence structure.
+
+Category: {category_name}
+
+Data:
+{category_data}
+
+Please provide an analysis of any recurring patterns, changes over time, or noteworthy trends based on the data.
+"""
+    
+    payload = {
+        "max_tokens": 75,
+        "messages": [
+            {
+                "content": prompt,
+                "role": "user"
+            }
+        ],
+        "temperature": 0.1
+    }
+    
+    try:
+        response = requests.post(url, headers=headers, json=payload)
+        if response.status_code == 200:
+            # Assuming the insight is in 'choices[0].message.content' (adjust if different)
+            data = response.json()
+            insight = data.get("choices", [{}])[0].get("message", {}).get("content", "No insight found")
+            return insight
+        else:
+            raise Exception(f"API request failed with status {response.status_code}: {response.text}")
+    except Exception as e:
+        return f"Error generating insight: {str(e)}"
 
 
 def allowed_file(filename):
@@ -48,6 +109,7 @@ def prediction():
 
 
 UPLOAD_FOLDER = "appleHealth/"
+AGGREGATED_DIR = "aggregated/"
 
 @app.route("/appleDataUpload", methods=["POST"])
 def appleDataUpload():
@@ -67,13 +129,86 @@ def appleDataUpload():
         file.save(file_path)
         
         #Erroring function
-        #filterData()
-        #aggregateDaily()
-        
-        return jsonify({"message": f"File uploaded successfully as '{fixed_filename}' to '{file_path}'."}), 200
+        filterData()
+        aggregateWeekly()
+
+        # Generate insights from specific CSV files
+        insights = {}
+        specific_files = ["activeenergyburned.csv", "heartrate.csv", "stepcount.csv"]
+
+        for csv_file in specific_files:
+            csv_path = os.path.join(AGGREGATED_DIR, csv_file)
+            if os.path.exists(csv_path):
+                with open(csv_path, "r") as f:
+                    category_data = f.read()
+                category_name = os.path.splitext(csv_file)[0]
+                insight = "This is a hard coded response -- get_databricks_insight(category_name, category_data)"
+                insights[csv_file] = insight
+                print(insights)
+            else:
+                insights[csv_file] = f"File not found: {csv_file}"
+            print(time.time())
+            # Return success message and insights
+
+            #Cache insights
+            globalSavedInsights = insights
+        return jsonify({
+                "message": f"File uploaded successfully as '{fixed_filename}' to '{file_path}'.",
+                "insights": insights
+        }), 200
     except Exception as e:
         return jsonify({"error": f"Error saving file: {str(e)}"}), 500
     
+@app.route("/overallInsights", methods=["GET"])
+def overallInsights():
+    # Check if globalOverallInsight is empty or not defined
+    if not globalSavedInsights:  # Assumes globalOverallInsight is defined globally
+        return jsonify({"error": "No insights available"}), 400
+
+    url = "https://dbc-81784a62-a9c5.cloud.databricks.com/serving-endpoints/QuackHacks_Health_Insights/invocations"
+
+    # Retrieve token from environment variable
+    token = os.getenv("DATABRICKS_TOKEN")
+    if not token:
+        raise ValueError("DATABRICKS_TOKEN environment variable is not set")
+
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {token}"
+    }
+
+    # Format the prompt with category name and data
+    prompt = f"""
+        Here is a list of all of the health insights which are derived from Apple Watch Data. Tell me the overall standing of my health according to these insights in a very brief summary. Use normal sentence format only.
+
+        Insights:
+        {globalSavedInsights} 
+    """
+
+    payload = {
+        "max_tokens": 100,
+        "messages": [
+            {
+                "content": prompt,
+                "role": "user"
+            }
+        ],
+        "temperature": 0.1
+    }
+
+    try:
+        '''
+        response = requests.post(url, headers=headers, json=payload)
+        if response.status_code == 200:
+            # Assuming the insight is in 'choices[0].message.content' (adjust if different)
+            data = response.json()
+            insight = data.get("choices", [{}])[0].get("message", {}).get("content", "No overall insight found")
+            return insight
+        else:
+            raise Exception(f"API request failed with status {response.status_code}: {response.text}")'''
+        return "THIS IS A HARD CODED RESPONSE"
+    except Exception as e:
+        return f"Error generating insight: {str(e)}"
 
 @app.route("/heartbeat", methods=["GET"])
 def heartbeat():
