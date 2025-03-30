@@ -1,10 +1,21 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import FileUploadBox from "../components/FileUploadBox";
+
+const backgrounds = [
+  { image: "https://images.pexels.com/photos/40568/medical-appointment-doctor-healthcare-40568.jpeg" },
+  { image: "https://images.pexels.com/photos/5214962/pexels-photo-5214962.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" },
+  { image: "https://t4.ftcdn.net/jpg/01/33/33/41/360_F_133334155_X23HzbJKawbIgXVaub4bPM8CjpkS5uMS.jpg" },
+];
 
 function HealthDataPage() {
   const [file, setFile] = useState(null);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [nextIndex, setNextIndex] = useState(1);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  document.title = "Quack Hacks - Health Summary";
 
   const handleFileSelect = (selectedFile) => {
     setFile(selectedFile);
@@ -32,9 +43,38 @@ function HealthDataPage() {
     }
   };
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsTransitioning(true);
+
+      setTimeout(() => {
+        setCurrentIndex(nextIndex);
+        setNextIndex((prev) => (prev + 1) % backgrounds.length);
+        setIsTransitioning(false);
+      }, 1000);
+    }, 8000); // Change every 10 seconds
+
+    return () => clearInterval(interval);
+  }, [nextIndex]);
+
   return (
-    <div className="min-h-screen w-screen bg-gradient-to-b from-white to-gray-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-3xl bg-white rounded-2xl shadow-xl p-8 text-center mx-4">
+    <div className="relative min-h-screen w-screen flex items-center justify-center overflow-hidden">
+      {/* Background Layers */}
+      <div className="background-container">
+        <div
+          className={`background-layer ${isTransitioning ? "bg-transition-out" : ""}`}
+          style={{ backgroundImage: `url(${backgrounds[currentIndex].image})` }}
+        />
+        {isTransitioning && (
+          <div
+            className="background-layer bg-transition-in"
+            style={{ backgroundImage: `url(${backgrounds[nextIndex].image})` }}
+          />
+        )}
+      </div>
+
+      {/* Content Box */}
+      <div className="relative z-10 w-full max-w-3xl bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl p-8 text-center mx-4">
         <h1 className="text-3xl sm:text-4xl font-semibold text-gray-800 mb-4">
           Import Your Apple Health Data
         </h1>
@@ -42,11 +82,7 @@ function HealthDataPage() {
           Unlock valuable insights into your well-being.
         </p>
 
-        <FileUploadBox
-          accept=".csv,.xlsx"
-          onFileSelect={handleFileSelect}
-          labelText="Drag & drop file here or click to choose"
-        />
+        <FileUploadBox accept=".csv,.xlsx" onFileSelect={handleFileSelect} labelText="Drag & drop file here or click to choose" />
 
         <button
           onClick={handleUpload}

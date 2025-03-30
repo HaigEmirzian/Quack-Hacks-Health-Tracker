@@ -14,22 +14,25 @@ function Navbar() {
 
   // Inline styles for Health Data link
   const healthDataStyle = {
-    color: location.pathname === "/" ? "#000" : "#4B5563", // black when active, gray-600 when inactive
-    borderBottom: location.pathname === "/" ? "2px solid #000" : "none"
+    color: location.pathname === "/" ? "#FFFFFE" : "#949594", // black when active, gray-600 when inactive
+    borderBottom: location.pathname === "/" ? "2px solid #FFFFFE" : "none",
+    boxShadow: location.pathname === "/" ?'0px 5px 20px rgba(255, 255, 255, 0.4)' : "none", // Bottom shadow effect
   };
 
   // Inline styles for Weight Data link
   const weightDataStyle = {
-    color: location.pathname === "/weight" ? "#000" : "#4B5563", // black when active, gray-600 when inactive
-    borderBottom: location.pathname === "/weight" ? "2px solid #000" : "none"
+    color: location.pathname === "/weight" ? "#FFFFFE" : "#949594", // black when active, gray-600 when inactive
+    borderBottom: location.pathname === "/weight" ? "2px solid #FFFFFE" : "none",
+    boxShadow: location.pathname === "/weight" ?'0px 5px 20px rgba(255, 255, 255, 0.4)' : "none", // Bottom shadow effect
   };
 
   return (
-    <nav className="bg-white shadow">
+    <nav className="bg-white shadow"style={{ backgroundColor: "#9D1535", }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
         {/* Dynamic Title */}
-        <div>
-          <h1 className="text-base font-semibold text-black">{pageTitle}</h1>
+        <div className="flex items-center space-x-4">
+          <img src="public/duck2.png" alt="icon" className="w-12 h-12" />
+          <h1 className="text-base font-semibold text-white">{pageTitle}</h1>
         </div>
         {/* Navigation Links */}
         <div className="flex space-x-4">
