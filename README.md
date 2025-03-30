@@ -1,7 +1,7 @@
 # 🦆 Quack-Hacks Health Tracker  
 
 ## 🚀 Team Information  
-**Team Name:** Quack-Hacks Health Tracker  
+**Team Name:** Live Healthy  
 **Team Members:** Haig Emirzian, Nick Weidman, Brian Sampson, Joy Khera  
 
 ## 🩺 Overview  
