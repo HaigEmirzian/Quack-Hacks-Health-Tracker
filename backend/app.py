@@ -15,7 +15,7 @@ CORS(app)
 
 allowed_files = {"xlsx", "csv"}
 
-globalSavedInsights = {}
+globalSavedInsights = None
 
 def get_databricks_insight(category_name, category_data):
     """
@@ -126,6 +126,8 @@ def appleDataUpload():
     try:
         file.save(file_path)
         
+        global globalSavedInsights
+
         #Erroring function
         filterData()
         aggregateWeekly()
@@ -156,14 +158,24 @@ def appleDataUpload():
     except Exception as e:
         return jsonify({"error": f"Error saving file: {str(e)}"}), 500
     
+MAX_WAIT_TIME = 60  # Maximum wait time in seconds
+CHECK_INTERVAL = 1  # How often to check (in seconds)
+
 @app.route("/overallInsights", methods=["GET"])
 def overallInsights():
-    # Check if globalOverallInsight is empty or not defined
-    if not globalSavedInsights:  # Assumes globalOverallInsight is defined globally
-        return jsonify({"error": "No insights available"}), 400
-
+    # Start a timer to track how long we've waited
+    start_time = time.time()
+    print(f"GLOBALINSIGHTS: {globalSavedInsights}")
+    
+    # Wait until globalSavedInsights is set or timeout occurs
+    while not globalSavedInsights:
+        if time.time() - start_time > MAX_WAIT_TIME:
+            return jsonify({"error": "Timeout waiting for insights"}), 500
+        time.sleep(CHECK_INTERVAL)
+    
+    # Once globalSavedInsights is set, proceed with the API call
     url = "https://dbc-81784a62-a9c5.cloud.databricks.com/serving-endpoints/QuackHacks_Health_Insights/invocations"
-
+    
     # Retrieve token from environment variable
     token = os.getenv("DATABRICKS_TOKEN")
     if not token:
@@ -174,7 +186,9 @@ def overallInsights():
         "Authorization": f"Bearer {token}"
     }
 
-    # Format the prompt with category name and data
+    print(f"GLOBALINSIGHTS: {globalSavedInsights}")
+
+    # Format the prompt with the insights
     prompt = f"""
         Here is a list of all of the health insights which are derived from Apple Watch Data. Tell me the overall standing of my health according to these insights in TWO SENTENCES. Use normal sentence format only.
 
@@ -196,7 +210,6 @@ def overallInsights():
     try:
         response = requests.post(url, headers=headers, json=payload)
         if response.status_code == 200:
-            # Assuming the insight is in 'choices[0].message.content' (adjust if different)
             data = response.json()
             insight = data.get("choices", [{}])[0].get("message", {}).get("content", "No overall insight found")
             return insight
@@ -204,7 +217,7 @@ def overallInsights():
             raise Exception(f"API request failed with status {response.status_code}: {response.text}")
     except Exception as e:
         return f"Error generating insight: {str(e)}"
-
+    
 @app.route("/heartbeat", methods=["GET"])
 def heartbeat():
     return jsonify({"message": "Success!"})
