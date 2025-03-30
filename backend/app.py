@@ -13,6 +13,9 @@ from datetime import datetime, timedelta
 from filterData import filterData
 from aggregate_daily import aggregateDaily
 
+from filterData import filterData
+from aggregate_daily import aggregateDaily
+
 app = Flask(__name__, static_folder="../frontend/dist", static_url_path="")
 CORS(app, resources={r"/*": {"origins": "*"}})
 
@@ -125,6 +128,7 @@ def analyze_weight():
         print(f"Server error: {str(e)}")
         return jsonify({"error": f"Server error: {str(e)}"}), 500
 
+      
 UPLOAD_FOLDER = "appleHealth/"
 
 @app.route("/appleDataUpload", methods=["POST"])

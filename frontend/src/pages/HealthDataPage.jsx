@@ -13,24 +13,30 @@ function HealthDataPage() {
   const handleUpload = async () => {
     if (!file) return;
     setLoading(true);
-
+  
     const formData = new FormData();
     formData.append("file", file);
-
+  
     try {
-      const res = await fetch("http://localhost:5000/prediction", {
+      const res = await fetch("http://localhost:5000/appleDataUpload", {
         method: "POST",
         body: formData,
       });
-      const data = await res.json();
-      setResult(data);
+  
+      if (!res.ok) {
+        const errorData = await res.json();
+        setResult({ error: errorData.error || "An unknown error occurred." });
+      } else {
+        const data = await res.json();
+        setResult(data);
+      }
     } catch (err) {
       console.error("Upload failed", err);
       setResult({ error: "Failed to fetch insights." });
     } finally {
       setLoading(false);
     }
-  };
+  };  
 
   return (
     <div className="min-h-screen w-screen bg-gradient-to-b from-white to-gray-100 flex items-center justify-center p-4">
@@ -43,7 +49,7 @@ function HealthDataPage() {
         </p>
 
         <FileUploadBox
-          accept=".csv,.xlsx"
+          accept=".xml"
           onFileSelect={handleFileSelect}
           labelText="Drag & drop file here or click to choose"
         />

@@ -19,10 +19,10 @@ function WeightDataPage() {
       setError("Please select a file first");
       return;
     }
-
+  
     setLoading(true);
     setError(null);
-
+  
     const formData = new FormData();
     formData.append("file", file);
 
@@ -34,7 +34,7 @@ function WeightDataPage() {
         timeout: 60000,
       });
 
-      console.log("Response status:", response.status);
+      console.log("Response status:", response.status);  
       if (!response.ok) {
         const errorText = await response.text();
         console.log("Response error text:", errorText);
@@ -55,6 +55,7 @@ function WeightDataPage() {
       setLoading(false);
     }
   };
+  
 
   // Scroll to the chart when the result is updated
   useEffect(() => {
