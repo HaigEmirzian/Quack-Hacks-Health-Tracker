@@ -103,8 +103,10 @@ function HealthDataPage() {
 
         <button
           onClick={handleUpload}
+
           className="mt-4 w-full bg-black text-white px-6 py-3 rounded-full hover:bg-gray-800 transition duration-200"
           disabled={loading || overallLoading}
+
         >
           {loading ? "Analyzing..." : "Get Insights"}
         </button>
