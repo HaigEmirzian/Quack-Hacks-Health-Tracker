@@ -105,7 +105,7 @@ function WeightDataPage() {
           <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80 rounded-2xl">
             <RingLoader
               color="#007AFF"
-              size={80}
+              size={180}
               speedMultiplier={1.2}
             />
           </div>
