@@ -41,18 +41,16 @@ def get_databricks_insight(category_name, category_data):
     }
     
     # Format the prompt with category name and data
-    prompt = f"""I will provide you with data from a specific category in the Apple Health app. Your task is to analyze the data and detect any significant patterns, trends, or anomalies. Please give a very short summary and suggest potential correlations or insights that are useful. Only include normal sentence structure.
+    prompt = f"""I will provide you with data from a specific category in the Apple Health app. Your task is to analyze the data and detect any significant patterns, trends, or anomalies. Please give a TWO SENTENCE summary and suggest potential correlations or insights that are useful. Only include normal sentence structure and do not go longer than TWO SENTENCES.
 
 Category: {category_name}
 
 Data:
 {category_data}
-
-Please provide an analysis of any recurring patterns, changes over time, or noteworthy trends based on the data.
 """
     
     payload = {
-        "max_tokens": 75,
+        "max_tokens": 200,
         "messages": [
             {
                 "content": prompt,
@@ -192,7 +190,7 @@ def overallInsights():
 
     # Format the prompt with category name and data
     prompt = f"""
-        Here is a list of all of the health insights which are derived from Apple Watch Data. Tell me the overall standing of my health according to these insights in a very brief summary. Use normal sentence format only.
+        Here is a list of all of the health insights which are derived from Apple Watch Data. Tell me the overall standing of my health according to these insights in TWO SENTENCES. Use normal sentence format only.
 
         Insights:
         {globalSavedInsights} 
