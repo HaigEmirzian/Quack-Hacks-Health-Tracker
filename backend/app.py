@@ -124,19 +124,6 @@ def appleDataUpload():
 
     # Save the file to the upload folder with the fixed filename
     try:
-
-        return jsonify(
-        {
-            "insights": {
-                "activeenergyburned.csv": "The data on active energy burned shows a significant increase over time, with values rising substantially from 2015 to 2022 and remaining high thereafter. A notable pattern is the fluctuation in energy burned on a weekly basis, with some weeks showing much higher values than others. There appears to be a seasonal trend, with higher energy burned during certain periods of the year, potentially",
-                "heartrate.csv": "The data shows a general fluctuation in heart rate over time, with some notable increases and decreases. One potential correlation is that heart rate tends to be higher in the winter months, as seen in the data from 2017 and 2024-2025, where heart rates are often above 80. Additionally, there appears to be a trend of increasing heart rate variability",
-                "stepcount.csv": "The provided data on step count from the Apple Health app shows significant variability over time, but some patterns and trends can be observed. There is a notable increase in step count over the years, with a general upward trend from 2015 to 2023, indicating an improvement in physical activity. However, there are periods of fluctuation, with some weeks showing significantly lower step",
-            },
-            "message": "File uploaded successfully as 'uploadData.xml' to 'appleHealth/uploadData.xml'.",
-        }
-    )
-
-
         file.save(file_path)
         
         #Erroring function
@@ -153,12 +140,11 @@ def appleDataUpload():
                 with open(csv_path, "r") as f:
                     category_data = f.read()
                 category_name = os.path.splitext(csv_file)[0]
-                insight = "This is a hard coded response -- get_databricks_insight(category_name, category_data)"
+                insight = get_databricks_insight(category_name, category_data)
                 insights[csv_file] = insight
                 print(insights)
             else:
                 insights[csv_file] = f"File not found: {csv_file}"
-            print(time.time())
             # Return success message and insights
 
             #Cache insights
@@ -197,7 +183,7 @@ def overallInsights():
     """
 
     payload = {
-        "max_tokens": 100,
+        "max_tokens": 200,
         "messages": [
             {
                 "content": prompt,
@@ -208,7 +194,6 @@ def overallInsights():
     }
 
     try:
-        '''
         response = requests.post(url, headers=headers, json=payload)
         if response.status_code == 200:
             # Assuming the insight is in 'choices[0].message.content' (adjust if different)
@@ -216,8 +201,7 @@ def overallInsights():
             insight = data.get("choices", [{}])[0].get("message", {}).get("content", "No overall insight found")
             return insight
         else:
-            raise Exception(f"API request failed with status {response.status_code}: {response.text}")'''
-        return "THIS IS A HARD CODED RESPONSE"
+            raise Exception(f"API request failed with status {response.status_code}: {response.text}")
     except Exception as e:
         return f"Error generating insight: {str(e)}"
 
