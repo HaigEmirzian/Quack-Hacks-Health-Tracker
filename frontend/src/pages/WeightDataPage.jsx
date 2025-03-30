@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react"; // Added useEffect and useRef
 import FileUploadBox from "../components/FileUploadBox";
 import WeightChart from "../components/WeightChart";
 import RingLoader from "react-spinners/RingLoader";
@@ -8,6 +8,7 @@ function WeightDataPage() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const chartRef = useRef(null); // Create a ref for the chart container
 
   const handleFileSelect = (selectedFile) => {
     setFile(selectedFile);
@@ -55,6 +56,13 @@ function WeightDataPage() {
     }
   };
 
+  // Scroll to the chart when the result is updated
+  useEffect(() => {
+    if (result && chartRef.current) {
+      chartRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [result]); // Trigger when result changes
+
   return (
     <div className="min-h-screen w-screen bg-gradient-to-b from-white to-gray-100 flex items-center justify-center p-4">
       <div className="w-full max-w-3xl bg-white rounded-2xl shadow-xl p-8 text-center mx-4 relative">
@@ -93,11 +101,13 @@ function WeightDataPage() {
                 {result.message}
               </p>
             </div>
-            {result.historical && result.predicted ? (
-              <WeightChart historical={result.historical} predicted={result.predicted} />
-            ) : (
-              <p className="text-gray-600 mt-2">No chart data available.</p>
-            )}
+            <div ref={chartRef}> {/* Add ref to the chart container */}
+              {result.historical && result.predicted ? (
+                <WeightChart historical={result.historical} predicted={result.predicted} />
+              ) : (
+                <p className="text-gray-600 mt-2">No chart data available.</p>
+              )}
+            </div>
           </div>
         )}
 
@@ -105,7 +115,7 @@ function WeightDataPage() {
           <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80 rounded-2xl">
             <RingLoader
               color="#007AFF"
-              size={180}
+              size={90}
               speedMultiplier={1.2}
             />
           </div>
