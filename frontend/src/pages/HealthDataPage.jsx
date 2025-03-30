@@ -1,5 +1,6 @@
 import { useState } from "react";
 import FileUploadBox from "../components/FileUploadBox";
+import RingLoader from "react-spinners/RingLoader";
 
 function HealthDataPage() {
   const [file, setFile] = useState(null);
@@ -81,7 +82,7 @@ function HealthDataPage() {
 
   return (
     <div className="min-h-screen w-screen bg-gradient-to-b from-white to-gray-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-3xl bg-white rounded-2xl shadow-xl p-8 text-center mx-4">
+      <div className="relative w-full max-w-3xl bg-white rounded-2xl shadow-xl p-8 text-center mx-4">
         <h1 className="text-3xl sm:text-4xl font-semibold text-gray-800 mb-4">
           Import Your Apple Health Data
         </h1>
@@ -148,6 +149,12 @@ function HealthDataPage() {
                 </div>
               </>
             )}
+          </div>
+        )}
+
+        {(loading || overallLoading) && (
+          <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80 rounded-2xl">
+            <RingLoader color="#007AFF" size={90} speedMultiplier={1.2} />
           </div>
         )}
       </div>
