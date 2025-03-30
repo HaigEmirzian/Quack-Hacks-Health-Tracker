@@ -11,9 +11,13 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.0.17",
+    "chart.js": "^4.4.8",
+    "chartjs-adapter-date-fns": "^3.0.0",
     "react": "^19.0.0",
+    "react-chartjs-2": "^5.3.0",
     "react-dom": "^19.0.0",
-    "react-router-dom": "^7.4.1"
+    "react-router-dom": "^7.4.1",
+    "react-spinners": "^0.15.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
