@@ -4,21 +4,48 @@ import FileUploadBox from "../components/FileUploadBox";
 function HealthDataPage() {
   const [file, setFile] = useState(null);
   const [result, setResult] = useState(null);
+  const [overallInsight, setOverallInsight] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [overallLoading, setOverallLoading] = useState(false);
 
   const handleFileSelect = (selectedFile) => {
     setFile(selectedFile);
   };
 
-    const headingMap = {
-        'activeenergyburned.csv': 'Active Energy Burned',
-        'heartrate.csv': 'Heart Rate',
-        'stepcount.csv': 'Step Count',
-    };
+  // Mapping for metric headings
+  const headingMap = {
+    "activeenergyburned.csv": "Active Energy Burned",
+    "heartrate.csv": "Heart Rate",
+    "stepcount.csv": "Step Count",
+  };
 
+  // Fetch overall insights from the backend endpoint
+  const fetchOverallInsight = async () => {
+    setOverallLoading(true);
+    try {
+      const res = await fetch("http://localhost:5000/overallInsights");
+      if (!res.ok) {
+        const errorData = await res.json();
+        setOverallInsight({ error: errorData.error || "An unknown error occurred." });
+      } else {
+        // In this example, the endpoint returns plain text; adjust if it returns JSON
+        const data = await res.text();
+        setOverallInsight(data);
+      }
+    } catch (err) {
+      console.error("Overall insights fetch failed", err);
+      setOverallInsight({ error: "Failed to fetch overall insights." });
+    } finally {
+      setOverallLoading(false);
+    }
+  };
+
+  // Handle file upload and subsequent overall insights fetching
   const handleUpload = async () => {
     if (!file) return;
     setLoading(true);
+    setResult(null);
+    setOverallInsight(null);
 
     const formData = new FormData();
     formData.append("file", file);
@@ -28,13 +55,14 @@ function HealthDataPage() {
         method: "POST",
         body: formData,
       });
-
       if (!res.ok) {
         const errorData = await res.json();
         setResult({ error: errorData.error || "An unknown error occurred." });
       } else {
         const data = await res.json();
         setResult(data);
+        // After a successful upload, fetch the overall insights
+        await fetchOverallInsight();
       }
     } catch (err) {
       console.error("Upload failed", err);
@@ -44,7 +72,7 @@ function HealthDataPage() {
     }
   };
 
-  // Map file names to image URLs (adjust the paths as needed)
+  // Map file names to image URLs (adjust these paths as needed)
   const imageMapping = {
     "activeenergyburned.csv": "/assets/activeenergyburned.png",
     "heartrate.csv": "/assets/heartrate.png",
@@ -70,19 +98,23 @@ function HealthDataPage() {
         <button
           onClick={handleUpload}
           className="mt-4 w-full bg-black text-white px-6 py-3 rounded-full hover:bg-gray-800 transition duration-200"
-          disabled={loading}
+          disabled={loading || overallLoading}
         >
           {loading ? "Analyzing..." : "Get Insights"}
         </button>
 
-        {result && (
+        {(result || overallInsight) && (
           <div className="mt-6 text-left">
-            {result.error ? (
+            {result && result.error ? (
               <div className="text-red-500 text-lg">{result.error}</div>
             ) : (
               <>
+                {result && result.message && (
+                  <div className="mb-4 text-green-600 font-medium">{result.message}</div>
+                )}
                 <div className="flex flex-col space-y-4">
-                  {result.insights &&
+                  {result &&
+                    result.insights &&
                     Object.entries(result.insights).map(([key, text]) => (
                       <div key={key} className="flex items-center bg-gray-100 p-4 rounded-lg shadow">
                         <img
@@ -92,12 +124,27 @@ function HealthDataPage() {
                         />
                         <div>
                           <h3 className="font-semibold text-gray-800 mb-1">
-                            {headingMap[key] || key}
+                            {headingMap[key] || key.replace(".csv", "")}
                           </h3>
                           <p className="text-gray-600 text-sm">{text}</p>
                         </div>
                       </div>
                     ))}
+                  {overallInsight && (
+                    <div className="flex items-center bg-gray-100 p-4 rounded-lg shadow">
+                      <img
+                        src="/assets/overall.png"
+                        alt="Overall Health"
+                        className="w-24 h-24 object-contain mr-4"
+                      />
+                      <div>
+                        <h3 className="font-semibold text-gray-800 mb-1">Overall Health</h3>
+                        <p className="text-gray-600 text-sm">
+                          {overallInsight.error ? overallInsight.error : overallInsight}
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </>
             )}
