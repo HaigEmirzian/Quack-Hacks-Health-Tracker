@@ -35,3 +35,8 @@ Our platform is designed around two core features:
 
 ## 🎯 Our Goal  
 Empower users with **data-driven insights** to make informed health decisions—**even before they know they need to.**  
+
+## Gallery
+![Home Page](frontend/assets/home-page.png)
+
+![Weight Data](frontend/assets/weight-data-page.png)
