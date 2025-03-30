@@ -80,6 +80,11 @@ function HealthDataPage() {
     "stepcount.csv": "/assets/stepcount.png",
   };
 
+  // Determine if insights are available
+  const hasMetricInsights =
+    result && result.insights && Object.keys(result.insights).length > 0;
+  const showInsightsContainer = hasMetricInsights || overallInsight;
+
   return (
     <div className="min-h-screen w-screen bg-gradient-to-b from-white to-gray-100 flex items-center justify-center p-4">
       <div className="relative w-full max-w-3xl bg-white rounded-2xl shadow-xl p-8 text-center mx-4">
@@ -104,20 +109,19 @@ function HealthDataPage() {
           {loading ? "Analyzing..." : "Get Insights"}
         </button>
 
-        {(result || overallInsight) && (
+        {showInsightsContainer && (
           <div className="mt-6 text-left">
             {result && result.error ? (
               <div className="text-red-500 text-lg">{result.error}</div>
             ) : (
               <>
-                {result && result.message && (
-                  <div className="mb-4 text-green-600 font-medium">{result.message}</div>
-                )}
                 <div className="flex flex-col space-y-4">
-                  {result &&
-                    result.insights &&
+                  {hasMetricInsights &&
                     Object.entries(result.insights).map(([key, text]) => (
-                      <div key={key} className="flex items-center bg-gray-100 p-4 rounded-lg shadow">
+                      <div
+                        key={key}
+                        className="flex items-center bg-gray-100 p-4 rounded-lg shadow"
+                      >
                         <img
                           src={imageMapping[key] || "/assets/default.png"}
                           alt={key}
@@ -139,9 +143,13 @@ function HealthDataPage() {
                         className="w-24 h-24 object-contain mr-4"
                       />
                       <div>
-                        <h3 className="font-semibold text-gray-800 mb-1">Overall Health</h3>
+                        <h3 className="font-semibold text-gray-800 mb-1">
+                          Overall Health
+                        </h3>
                         <p className="text-gray-600 text-sm">
-                          {overallInsight.error ? overallInsight.error : overallInsight}
+                          {overallInsight.error
+                            ? overallInsight.error
+                            : overallInsight}
                         </p>
                       </div>
                     </div>
