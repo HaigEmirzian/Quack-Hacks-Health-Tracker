@@ -1,6 +1,7 @@
 import { useState } from "react";
 import FileUploadBox from "../components/FileUploadBox";
 import WeightChart from "../components/WeightChart";
+import RingLoader from "react-spinners/RingLoader";
 
 function WeightDataPage() {
   const [file, setFile] = useState(null);
@@ -29,13 +30,14 @@ function WeightDataPage() {
       const response = await fetch("http://localhost:5000/weight", {
         method: "POST",
         body: formData,
+        timeout: 60000,
       });
 
       console.log("Response status:", response.status);
       if (!response.ok) {
         const errorText = await response.text();
         console.log("Response error text:", errorText);
-        throw new Error(`HTTP error! status: ${response.status}, details: ${errorText}`);
+        throw new Error(`Failed to analyze weight data: ${errorText}`);
       }
 
       const data = await response.json();
@@ -43,7 +45,11 @@ function WeightDataPage() {
       setResult(data);
     } catch (error) {
       console.error("Fetch error:", error);
-      setError(`Failed to fetch insights: ${error.message}`);
+      setError(
+        error.message.includes("Failed to fetch")
+          ? "Unable to connect to the server. Please try again later."
+          : error.message
+      );
     } finally {
       setLoading(false);
     }
@@ -51,7 +57,7 @@ function WeightDataPage() {
 
   return (
     <div className="min-h-screen w-screen bg-gradient-to-b from-white to-gray-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-3xl bg-white rounded-2xl shadow-xl p-8 text-center mx-4">
+      <div className="w-full max-w-3xl bg-white rounded-2xl shadow-xl p-8 text-center mx-4 relative">
         <h1 className="text-3xl sm:text-4xl font-semibold text-gray-800 mb-4">
           Track Your Weight Data
         </h1>
@@ -67,10 +73,10 @@ function WeightDataPage() {
 
         <button
           onClick={handleUpload}
-          className="mt-4 w-full bg-white text-black px-6 py-3 rounded-full hover:bg-gray-100 transition duration-200"
+          className="mt-4 w-full bg-white text-black px-6 py-3 rounded-full hover:bg-gray-100 transition duration-200 disabled:opacity-50"
           disabled={loading}
         >
-          {loading ? "Analyzing..." : "Analyze Weight Data"}
+          {loading ? "Processing..." : "Analyze Weight Data"}
         </button>
 
         {error && (
@@ -82,14 +88,26 @@ function WeightDataPage() {
         {result && (
           <div className="mt-6">
             <div className="text-left">
-              <h2 className="text-xl font-semibold mb-2">Weight Analysis:</h2>
-              <p className="text-gray-800">{result.message}</p>
+              <h2 className="text-xl font-semibold mb-2 text-gray-800">Weight Analysis:</h2>
+              <p className="text-xl font-semibold text-gray-800">
+                {result.message}
+              </p>
             </div>
             {result.historical && result.predicted ? (
               <WeightChart historical={result.historical} predicted={result.predicted} />
             ) : (
               <p className="text-gray-600 mt-2">No chart data available.</p>
             )}
+          </div>
+        )}
+
+        {loading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80 rounded-2xl">
+            <RingLoader
+              color="#007AFF"
+              size={80}
+              speedMultiplier={1.2}
+            />
           </div>
         )}
       </div>

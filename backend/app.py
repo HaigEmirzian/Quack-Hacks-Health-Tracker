@@ -110,7 +110,7 @@ def analyze_weight():
             predicted = [{'date': date_str, 'weight': weight} for date_str, weight in zip(future_dates, predicted_weights)]
             
             # Prepare the response with the message and chart data
-            message = f"Your predicted weight is {round(float(predicted_weight))} lbs."
+            message = f"Your predicted weight is {round(float(predicted_weight))} lbs in 30 days."
             return jsonify({
                 "message": message,
                 "historical": historical,
