@@ -10,6 +10,12 @@ function HealthDataPage() {
     setFile(selectedFile);
   };
 
+    const headingMap = {
+        'activeenergyburned.csv': 'Active Energy Burned',
+        'heartrate.csv': 'Heart Rate',
+        'stepcount.csv': 'Step Count',
+    };
+
   const handleUpload = async () => {
     if (!file) return;
     setLoading(true);
@@ -75,9 +81,6 @@ function HealthDataPage() {
               <div className="text-red-500 text-lg">{result.error}</div>
             ) : (
               <>
-                {result.message && (
-                  <div className="mb-4 text-green-600 font-medium">{result.message}</div>
-                )}
                 <div className="flex flex-col space-y-4">
                   {result.insights &&
                     Object.entries(result.insights).map(([key, text]) => (
@@ -89,7 +92,7 @@ function HealthDataPage() {
                         />
                         <div>
                           <h3 className="font-semibold text-gray-800 mb-1">
-                            {key.replace(".csv", "")}
+                            {headingMap[key] || key}
                           </h3>
                           <p className="text-gray-600 text-sm">{text}</p>
                         </div>
