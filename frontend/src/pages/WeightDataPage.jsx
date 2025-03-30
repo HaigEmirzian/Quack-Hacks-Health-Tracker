@@ -1,5 +1,6 @@
 import { useState } from "react";
 import FileUploadBox from "../components/FileUploadBox";
+import WeightChart from "../components/WeightChart";
 
 function WeightDataPage() {
   const [file, setFile] = useState(null);
@@ -13,7 +14,7 @@ function WeightDataPage() {
 
   const handleUpload = async () => {
     if (!file) {
-      setError('Please select a file first');
+      setError("Please select a file first");
       return;
     }
 
@@ -21,32 +22,28 @@ function WeightDataPage() {
     setError(null);
 
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append("file", file);
 
     try {
-      console.log('Sending request to server...');
-      const response = await fetch('http://localhost:5000/weight', {
-        method: 'POST',
+      console.log("Sending request to http://localhost:5000/weight");
+      const response = await fetch("http://localhost:5000/weight", {
+        method: "POST",
         body: formData,
       });
 
-      console.log('Response received:', response.status);
-
+      console.log("Response status:", response.status);
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        console.log("Response error text:", errorText);
+        throw new Error(`HTTP error! status: ${response.status}, details: ${errorText}`);
       }
 
       const data = await response.json();
-      console.log('Data received:', data);
-
-      if (data.error) {
-        setError(data.error);
-      } else {
-        setResult(data);
-      }
+      console.log("Response data:", data);
+      setResult(data);
     } catch (error) {
-      console.error('Error:', error);
-      setError('Failed to fetch insights. Please make sure the server is running.');
+      console.error("Fetch error:", error);
+      setError(`Failed to fetch insights: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -58,7 +55,7 @@ function WeightDataPage() {
         <h1 className="text-3xl sm:text-4xl font-semibold text-gray-800 mb-4">
           Track Your Weight Data
         </h1>
-        <p className="text-gray-500 mb-6 text-base sm:text-lg">
+        <p className="text-gray-600 mb-6 text-base sm:text-lg">
           Measure your progress and predict your weight loss journey.
         </p>
 
@@ -83,11 +80,16 @@ function WeightDataPage() {
         )}
 
         {result && (
-          <div className="mt-6 text-left">
-            <h2 className="text-xl font-semibold mb-2">Weight Analysis:</h2>
-            <pre className="bg-gray-100 p-4 rounded-lg text-sm text-gray-800 overflow-x-auto">
-              {JSON.stringify(result, null, 2)}
-            </pre>
+          <div className="mt-6">
+            <div className="text-left">
+              <h2 className="text-xl font-semibold mb-2">Weight Analysis:</h2>
+              <p className="text-gray-800">{result.message}</p>
+            </div>
+            {result.historical && result.predicted ? (
+              <WeightChart historical={result.historical} predicted={result.predicted} />
+            ) : (
+              <p className="text-gray-600 mt-2">No chart data available.</p>
+            )}
           </div>
         )}
       </div>
